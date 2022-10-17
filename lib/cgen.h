@@ -51,6 +51,17 @@ void array_##type##__finalize(array_##type *array);																												\
 array_##type array_##type##__clone(array_##type array);																											\
 array_##type array_##type##__sort(array_##type array, int32_t (*compare)(type x, type y), sort_aim aim, sort_result_type result_type);							\
 																																								\
+/* List functions */																																			\
+list_##type list_##type##__create(int64_t length);																												\
+void array_##type##__finalize(list_##type *list);																												\
+list_##type list_##type##__clone(list_##type list);																												\
+void list_##type##__add(list_##type list, type content);																										\
+void list_##type##__add_range(list_##type list, list_##type content);																							\
+int64_t list_##type##__binary_search(type content);																												\
+bool list_##type##__contains(type content);																														\
+void list_##type##__clear(list_##type list);																													\
+list_##type list_##type##__sort(list_##type list, int32_t (*compare)(type x, type y), sort_aim aim, sort_result_type result_type);								\
+																																								\
 /* Linked list functions */																																		\
 linkedlist_##type linkedlist_##type##__create();																												\
 void linkedlist_##type##__finalize(linkedlist_##type *list);																									\
