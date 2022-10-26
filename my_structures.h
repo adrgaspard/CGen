@@ -1,7 +1,7 @@
 #ifndef __MY_STRUCTURES_H__
 #define __MY_STRUCTURES_H__
 
-#include "lib/tuple.h"
+#include "lib/ctuple.h"
 
 typedef struct person
 {
