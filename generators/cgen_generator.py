@@ -13,18 +13,22 @@ def generate_cgen_file(input, output) -> str:
     last_line = None
     inside_macro = False
     for line in lines:
-        if line.startswith("/* --- Ignore --- */"):
+        if line.strip().startswith("/* --- Ignore --- */"):
             continue
-        if line.startswith("/* --- macro_end --- */"):
+        if line.strip().startswith("/* --- macro_end --- */"):
             inside_macro = False
             if (len(result) > 0):
                 result.pop()
                 result.append(last_line)
             continue
-        if line.startswith("/* --- macro_start --- "):
+        if line.strip().startswith("/* --- macro_start --- "):
             inside_macro = True
             macro_name = line.replace("/* --- macro_start --- ", "").replace(" */", "")
             result.append(generate_line_completion("#define " + macro_name, max_length))
+            continue
+        if line.strip().startswith("/* --- macro_usage --- "):
+            macro_name = line.replace("/* --- macro_usage --- ", "").replace(" */", "")
+            result.append(generate_line_completion(macro_name, max_length))
             continue
         last_line = line
         if inside_macro:

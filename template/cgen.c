@@ -19,19 +19,61 @@ typedef enum sort_location
 	CURRENT_COLLECTION,
 	NEW_COLLECTION
 } sort_location;
+typedef enum enumerable_implementation
+{
+	ARRAY = 0b10000000,
+	LINKEDLIST = 0b10000001,
+	LIST = 0b10000010
+} enumerable_implementation;
+
+#define IS_ENUMERABLE(obj) obj->enumerable_code & 0b10000000
 
 /* --- Ignore --- */ typedef int type;
+
+/* Generics interfaces body parts */
+
+/* --- macro_start --- ENUMERABLE_INTERFACE_BODY(type) */
+enumerable_implementation enumerable_code;
+/* --- macro_end --- */
 
 /* Generics types part */
 
 /* --- macro_start --- INCLUDE_GENERICS_ABSTRACTION(type) */
+typedef struct indexed_type_data
+{
+	type *data;
+	uint64_t count;
+	uint64_t index;
+} indexed_type_data;
+typedef struct linked_type_data
+{
+	struct linkednode_type_struct *first;
+	struct linkednode_type_struct *node;
+} linked_type_data;
+typedef struct enumerator_type
+{
+	type *current;
+	void (*move_next)(struct enumerator_type *enumerator);
+	void (*reset)(struct enumerator_type *enumerator);
+	union {
+		indexed_type_data indexed;
+		linked_type_data linked;
+	};
+} enumerator_type;
+typedef struct enumerable_type_struct
+{
+	/* --- Ignore --- */ enumerable_implementation enumerable_code;
+	/* --- macro_usage --- ENUMERABLE_INTERFACE_BODY(type) */
+} * enumerable_type;
 typedef struct array_type_struct
 {
+	/* --- macro_usage --- ENUMERABLE_INTERFACE_BODY(type) */
 	type *items;
 	int64_t length;
 } * array_type;
 typedef struct list_type_struct
 {
+	/* --- macro_usage --- ENUMERABLE_INTERFACE_BODY(type) */
 	type *items;
 	int64_t length;
 	int64_t capacity;
@@ -44,15 +86,14 @@ typedef struct linkednode_type_struct
 } * linkednode_type;
 typedef struct linkedlist_type_struct
 {
+	/* --- macro_usage --- ENUMERABLE_INTERFACE_BODY(type) */
 	linkednode_type first;
 	linkednode_type last;
 	int64_t count;
 } * linkedlist_type;
 
-/* Private core sort functions */
-void __generics_type__merge_sort__(type *_array, type *_tmp, int64_t _start, int64_t _end, int32_t (*_compare)(type _x, type _y));
-int64_t __generics_type__partition__(type *_array, int64_t _low, int64_t _high, int32_t (*_compare)(type _x, type _y));
-void __generics_type__quick_sort__(type *_array, int64_t _low, int64_t _high, int32_t (*_compare)(type _x, type _y));
+/* Enumerator function */
+enumerator_type get_enumerator_type(enumerable_type enumerable);
 
 /* Array functions */
 array_type array_type__create(int64_t length);
@@ -74,6 +115,9 @@ linkedlist_type linkedlist_type__sort(linkedlist_type list, int32_t (*compare)(t
 
 /* --- macro_start --- INCLUDE_GENERICS_IMPLEMENTATION(type) */
 /* Private core sort functions */
+void __generics_type__merge_sort__(type *_array, type *_tmp, int64_t _start, int64_t _end, int32_t (*_compare)(type _x, type _y));
+int64_t __generics_type__partition__(type *_array, int64_t _low, int64_t _high, int32_t (*_compare)(type _x, type _y));
+void __generics_type__quick_sort__(type *_array, int64_t _low, int64_t _high, int32_t (*_compare)(type _x, type _y));
 void __generics_type__merge_sort__(type *_array, type *_tmp, int64_t _start, int64_t _end, int32_t (*_compare)(type _x, type _y))
 {
 	int64_t _middle, _i, _j, _k;
@@ -146,11 +190,77 @@ void __generics_type__quick_sort__(type *_array, int64_t _low, int64_t _high, in
 	}
 }
 
+/* Private enumerator utils functions */
+void __generics_type__move_next_indexed__(enumerator_type *enumerator)
+{
+	if (enumerator->indexed.index >= enumerator->indexed.count)
+	{
+		enumerator->current = NULL;
+	}
+	else
+	{
+		enumerator->indexed.index++;
+		enumerator->current = &(enumerator->indexed.data[enumerator->indexed.index]);
+	}
+}
+void __generics_type__move_next_linked__(enumerator_type *enumerator)
+{
+	if (enumerator->linked.node->next)
+	{
+		enumerator->linked.node = enumerator->linked.node->next;
+		enumerator->current = &(enumerator->linked.node->content);
+	}
+	else
+	{
+		enumerator->linked.node = NULL;
+		enumerator->current = NULL;
+	}
+}
+void __generics_type__reset_indexed__(enumerator_type *enumerator)
+{
+	enumerator->indexed.index = 0;
+	enumerator->current = enumerator->indexed.count ? &(enumerator->indexed.data[0]) : NULL;
+}
+void __generics_type__reset_linked__(enumerator_type *enumerator)
+{
+	enumerator->linked.node = enumerator->linked.first;
+	enumerator->current = enumerator->linked.node ? &(enumerator->linked.node->content) : NULL;
+}
+
+/* Enumerator function */
+enumerator_type get_enumerator_type(enumerable_type enumerable)
+{
+	enumerator_type result;
+	assert(enumerable);
+	switch (enumerable->enumerable_code)
+	{
+	case ARRAY:
+		result.move_next = __generics_type__move_next_indexed__;
+		result.reset = __generics_type__reset_indexed__;
+		result.indexed.data = ((array_type)enumerable)->items;
+		result.indexed.count = ((array_type)enumerable)->length;
+		result.indexed.index = 0;
+		break;
+	case LINKEDLIST:
+		result.move_next = __generics_type__move_next_linked__;
+		result.reset = __generics_type__reset_linked__;
+		result.linked.first = ((linkedlist_type)enumerable)->first;
+		result.linked.node = result.linked.first;
+		break;
+	default:
+		assert(false);
+		break;
+	}
+	result.reset(&result);
+	return result;
+}
+
 /* Array functions */
 array_type array_type__create(int64_t length)
 {
 	array_type _array = (array_type)calloc(1, sizeof(struct array_type_struct));
 	assert(_array);
+	_array->enumerable_code = ARRAY;
 	_array->length = length;
 	_array->items = (type *)calloc(length, sizeof(type));
 	assert(_array->items);
@@ -209,6 +319,7 @@ linkedlist_type linkedlist_type__create()
 {
 	linkedlist_type _list = (linkedlist_type)calloc(1, sizeof(struct linkedlist_type_struct));
 	assert(_list);
+	_list->enumerable_code = LINKEDLIST;
 	return _list;
 }
 void linkedlist_type__finalize(linkedlist_type *list)
@@ -361,7 +472,7 @@ linkedlist_type linkedlist_type__sort(linkedlist_type list, int32_t (*compare)(t
 		__generics_type__quick_sort__(_save, 0, list->count - 1, compare);
 		break;
 	default:
-		assert(false && (aim == DURATION_STABILITY || aim == MEMORY_USAGE));
+		assert(false);
 	}
 	switch (location)
 	{
@@ -382,45 +493,27 @@ linkedlist_type linkedlist_type__sort(linkedlist_type list, int32_t (*compare)(t
 		}
 		break;
 	default:
-		assert(false && (location == CURRENT_COLLECTION || location == NEW_COLLECTION));
+		assert(false);
 	}
 	free(_save);
 	return _result;
 }
 /* --- macro_end --- */
 
-/* Array iterator */
-/* --- macro_start --- ARRAY_FOREACH(type, array, index_name, element_name, action) */
+/* Warning : the enumerable can't be modified during a foreach operation ! */
+/* --- macro_start --- FOREACH(type, enumerable, element_name, action) */
 do
 {
-	int64_t index_name;
-	type element_name;
-	assert(array);
-	for (index_name = 0; index_name < array->length; index_name++)
+	type *element_name;
+	enumerator_type _enumerator = get_enumerator_JOINtype((enumerable_type)enumerable);
+	while (_enumerator.current)
 	{
-		element_name = array->items[index_name];
+		element_name = _enumerator.current;
 		action;
-	}
-} while (0)
-/* --- macro_end --- */
-
-/* Linked list iterator */
-/* Warning : the linked list can't be modified during a foreach operation ! */
-/* --- macro_start --- LINKEDLIST_FOREACH(type, list, element_name, action) */
-do
-{
-	linkednode_type _linkedlist_type_JOINelement_nameJOIN_it;
-	type element_name;
-	assert(list);
-	_linkedlist_type_JOINelement_nameJOIN_it = (list)->first;
-	while (_linkedlist_type_JOINelement_nameJOIN_it)
-	{
-		element_name = _linkedlist_type_JOINelement_nameJOIN_it->content;
-		action;
-		_linkedlist_type_JOINelement_nameJOIN_it = _linkedlist_type_JOINelement_nameJOIN_it->next;
+		_enumerator.move_next(&(_enumerator));
 	}
 }
-while (0)
+while (false)
 /* --- macro_end --- */
 
 #endif
