@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include "lib/cgen_generated.h"
 
 static int32_t __cgen_compare_int8_asc__(const int8_t x1, const int8_t x2)
@@ -88,13 +89,43 @@ static int32_t __cgen_compare_double_desc__(const double x1, const double x2)
 {
     return x1 == x2 ? 0 : x1 < x2 ? 1 : -1;
 }
-static int32_t __cgen_compare_str_asc__(const char *x1, const char *x2)
+static int32_t __cgen_compare_str_asc__(char *x1, char *x2)
 {
     return strcmp(x1, x2);
 }
-static int32_t __cgen_compare_str_desc__(const char *x1, const char *x2)
+static int32_t __cgen_compare_str_desc__(char *x1, char *x2)
 {
     return -strcmp(x1, x2);
+}
+static int32_t __cgen_compare_str_case_insensitive_asc__(char *x1, char *x2)
+{
+    unsigned char c1, c2;
+    do
+    {
+        c1 = tolower(*x1++);
+        c2 = tolower(*x2++);
+        if (c1 == '\0')
+        {
+            return c1 - c2;
+        }
+    }
+    while (c1 == c2);
+    return c1 - c2;
+}
+static int32_t __cgen_compare_str_case_insensitive_desc__(char *x1, char *x2)
+{
+    unsigned char c1, c2;
+    do
+    {
+        c1 = tolower(*x1++);
+        c2 = tolower(*x2++);
+        if (c1 == '\0')
+        {
+            return c2 - c1;
+        }
+    }
+    while (c1 == c2);
+    return c2 - c1;
 }
 
 const comparators_table CGen_Comparators = {
@@ -121,5 +152,7 @@ const comparators_table CGen_Comparators = {
     .compare_double_asc = __cgen_compare_double_asc__,
     .compare_double_desc = __cgen_compare_double_desc__,
     .compare_str_asc = __cgen_compare_str_asc__,
-    .compare_str_desc = __cgen_compare_str_desc__
+    .compare_str_desc = __cgen_compare_str_desc__,
+    .compare_str_case_insensitive_asc = __cgen_compare_str_case_insensitive_asc__,
+    .compare_str_case_insensitive_desc = __cgen_compare_str_case_insensitive_desc__
 };

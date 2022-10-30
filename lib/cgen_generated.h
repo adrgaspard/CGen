@@ -48,8 +48,10 @@ typedef struct comparators_table
     const int32_t (*compare_float_desc)(const float x1, const float x2);
     const int32_t (*compare_double_asc)(const double x1, const double x2);
     const int32_t (*compare_double_desc)(const double x1, const double x2);
-    const int32_t (*compare_str_asc)(const char *x1, const char *x2);
-    const int32_t (*compare_str_desc)(const char *x1, const char *x2);
+    const int32_t (*compare_str_asc)(char *x1, char *x2);
+    const int32_t (*compare_str_desc)(char *x1, char *x2);
+    const int32_t (*compare_str_case_insensitive_asc)(char *x1, char *x2);
+    const int32_t (*compare_str_case_insensitive_desc)(char *x1, char *x2);
 } comparators_table;
 
 extern const comparators_table CGen_Comparators;
@@ -93,8 +95,8 @@ typedef enum enumerable_implementation
 
 /* Polymorphism verification macros */
 
-#define CGen_Is_IEnumerable(obj) (obj)->enumerable_code & ENUMERABLE_I
-#define CGen_Is_ICollection(obj) (obj)->enumerable_code & COLLECTION_I
+#define CGen_Is_IEnumerable(obj) ((obj)->enumerable_code & ENUMERABLE_I)
+#define CGen_Is_ICollection(obj) ((obj)->enumerable_code & COLLECTION_I)
 
 /* Enumerable interface functions macros */
 
@@ -282,13 +284,12 @@ static void __cgen_##type##__quick_sort__(type *_array, int64_t _low, int64_t _h
 /* Private enumerator utils functions */                                                                                                                                                                                                  \
 static void __cgen_##type##__move_next_indexed__(enumerator_##type *enumerator)                                                                                                                                                           \
 {                                                                                                                                                                                                                                         \
-    if (enumerator->indexed.index >= enumerator->indexed.count)                                                                                                                                                                           \
+    if (++enumerator->indexed.index >= enumerator->indexed.count)                                                                                                                                                                         \
     {                                                                                                                                                                                                                                     \
         enumerator->current = NULL;                                                                                                                                                                                                       \
     }                                                                                                                                                                                                                                     \
     else                                                                                                                                                                                                                                  \
     {                                                                                                                                                                                                                                     \
-        enumerator->indexed.index++;                                                                                                                                                                                                      \
         enumerator->current = &(enumerator->indexed.data[enumerator->indexed.index]);                                                                                                                                                     \
     }                                                                                                                                                                                                                                     \
 }                                                                                                                                                                                                                                         \
@@ -398,7 +399,6 @@ static array_##type __cgen_array_##type##__sort__(array_##type array, int32_t (*
 static void __cgen_linkedlist_##type##__clear__(linkedlist_##type list);                                                                                                                                                                  \
 CGen_LinkedList(type) cgen_linkedlist_##type##__create()                                                                                                                                                                                  \
 {                                                                                                                                                                                                                                         \
-    printf("test! \n");                                                                                                                                                                                                                   \
     linkedlist_##type _list = (linkedlist_##type)calloc(1, sizeof(struct linkedlist_##type##_struct));                                                                                                                                    \
     __CGEN_ASSERT__(_list, __CGEN_METHOD_STR__("LinkedList", type, "New"), __CGEN_ERR_MEMALLOC__("linked list structure"));                                                                                                               \
     _list->enumerable_code = LINKEDLIST_T;                                                                                                                                                                                                \

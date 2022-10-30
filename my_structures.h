@@ -3,6 +3,8 @@
 
 #include "lib/ctuple.h"
 
+typedef char *string;
+
 typedef struct person
 {
     char name[20];
