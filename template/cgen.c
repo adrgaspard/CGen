@@ -14,7 +14,7 @@ int32_t __cgen_raise_error__(const char *file, const int line, const char *messa
 #define __CGEN_ASSERT__(expression, context, error_message) (void)((!!(expression)) || __cgen_raise_error__(__FILE__, __LINE__, "[" context "] " error_message))
 #define __CGEN_METHOD_STR__(implementation, type, operation) implementation "(" #type "):" operation
 
-#define __CGEN_ERR_MEMALLOC__(error_source) "Memory allocation error. Failed to allocate the " error_source "." 
+#define __CGEN_ERR_MEMALLOC__(error_source) "Memory allocation error. Failed to allocate the " error_source "."
 #define __CGEN_ERR_NULLREF__(error_source) "Null reference error. The " error_source " can't be null."
 #define __CGEN_ERR_NOTPOS__(error_source) "Invalid value. The " error_source " must be positive."
 #define __CGEN_ERR_UNKNOW_ENUM_VAL__(error_source, enumeration) "Invalid value. The " error_source " must have a valid " #enumeration " value."
@@ -22,10 +22,41 @@ int32_t __cgen_raise_error__(const char *file, const int line, const char *messa
 #define __CGEN_ERR_NOT_ENUMERABLE__(type, error_source) "Invalid value. The " error_source " is not an implementation of IEnumerable(" #type ") interface."
 #define __CGEN_ERR_NOT_COLLECTION__(type, error_source) "Invalid value. The " error_source " is not an implementation of ICollection(" #type ") interface."
 
-/* Global types part */
+/* Default comparators */
 
-typedef enum sort_aim
+typedef struct comparators_table
 {
+	const int32_t (*compare_int8_asc)(const int8_t x1, const int8_t x2);
+	const int32_t (*compare_int8_desc)(const int8_t x1, const int8_t x2);
+	const int32_t (*compare_int16_asc)(const int16_t x1, const int16_t x2);
+	const int32_t (*compare_int16_desc)(const int16_t x1, const int16_t x2);
+	const int32_t (*compare_int32_asc)(const int32_t x1, const int32_t x2);
+	const int32_t (*compare_int32_desc)(const int32_t x1, const int32_t x2);
+	const int32_t (*compare_int64_asc)(const int64_t x1, const int64_t x2);
+	const int32_t (*compare_int64_desc)(const int64_t x1, const int64_t x2);
+	const int32_t (*compare_uint8_asc)(const uint8_t x1, const uint8_t x2);
+	const int32_t (*compare_uint8_desc)(const uint8_t x1, const uint8_t x2);
+	const int32_t (*compare_uint16_asc)(const uint16_t x1, const uint16_t x2);
+	const int32_t (*compare_uint16_desc)(const uint16_t x1, const uint16_t x2);
+	const int32_t (*compare_uint32_asc)(const uint32_t x1, const uint32_t x2);
+	const int32_t (*compare_uint32_desc)(const uint32_t x1, const uint32_t x2);
+	const int32_t (*compare_uint64_asc)(const uint64_t x1, const uint64_t x2);
+	const int32_t (*compare_uint64_desc)(const uint64_t x1, const uint64_t x2);
+	const int32_t (*compare_short_asc)(const short x1, const short x2);
+	const int32_t (*compare_short_desc)(const short x1, const short x2);
+	const int32_t (*compare_float_asc)(const float x1, const float x2);
+	const int32_t (*compare_float_desc)(const float x1, const float x2);
+	const int32_t (*compare_double_asc)(const double x1, const double x2);
+	const int32_t (*compare_double_desc)(const double x1, const double x2);
+	const int32_t (*compare_str_asc)(const char *x1, const char *x2);
+	const int32_t (*compare_str_desc)(const char *x1, const char *x2);
+} comparators_table;
+
+extern const comparators_table CGen_Comparators;
+
+/* Global types section */
+
+typedef enum sort_aim {
 	DURATION_STABILITY = 1,
 	MEMORY_USAGE = 2
 } sort_aim;
@@ -45,7 +76,7 @@ typedef enum enumerable_implementation
 
 /* --- Ignore --- */ typedef int type;
 
-/* Generics interfaces part */
+/* Generics interfaces section */
 
 /* --- Ignore --- */ typedef struct to_ignore
 /* --- Ignore --- */ {
@@ -56,7 +87,7 @@ typedef enum enumerable_implementation
 	/* --- macro_start --- ICOLLECTION_INTERFACE_BODY(type) */
 	/* --- macro_usage --- IENUMERABLE_INTERFACE_BODY(type) */
 	int64_t count;
-/* --- macro_end --- */
+	/* --- macro_end --- */
 /* --- Ignore --- */ };
 
 /* Interface descriptors and lib types descriptors macros */
