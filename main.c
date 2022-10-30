@@ -3,11 +3,13 @@
 
 int main(void)
 {
-    LinkedList(int32_t) testlist = Create(linkedlist, int32_t);
-    linkedlist_int32_t my_list = linkedlist_int32_t__create();
-    linkedlist_int32_t__add_last(my_list, 2);
-    linkedlist_int32_t__add_first(my_list, 1);
-    FOREACH(int32_t, my_list, item, printf("%d\n", *item));
+    CGen_LinkedList(int32_t) my_list = CGen_New_LinkedList(int32_t);
+    CGen_AddLast(int32_t, my_list, 2);
+    CGen_AddFirst(int32_t, my_list, 1);
+    CGen_ForEach(int32_t, my_list, my_element, 
+    {
+        printf("- %d\n", *my_element);
+    });
     tuple_float_person test = { .item1 = 1.2, .item2 = { .age = 5, .name = "Quentin" } };
     printf("%s\n", test.item2.name);
     return 0;

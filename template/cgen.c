@@ -11,34 +11,96 @@
 
 typedef enum sort_aim
 {
-	DURATION_STABILITY,
-	MEMORY_USAGE
+	DURATION_STABILITY = 1,
+	MEMORY_USAGE = 2
 } sort_aim;
 typedef enum sort_location
 {
-	CURRENT_COLLECTION,
-	NEW_COLLECTION
+	CURRENT_COLLECTION = 1,
+	NEW_COLLECTION = 2
 } sort_location;
 typedef enum enumerable_implementation
 {
-	ARRAY = 0b10000000,
-	LINKEDLIST = 0b10000001,
-	LIST = 0b10000010
+	ARRAY_T = 1,
+	LINKEDLIST_T = 2,
+	LIST_T = 4,
+	COLLECTION_I = LINKEDLIST_T | LIST_T,
+	ENUMERABLE_I = COLLECTION_I | ARRAY_T
 } enumerable_implementation;
-
-#define IS_ENUMERABLE(obj) obj->enumerable_code & 0b10000000
 
 /* --- Ignore --- */ typedef int type;
 
-/* Generics interfaces body parts */
+/* Generics interfaces part */
 
-/* --- macro_start --- ENUMERABLE_INTERFACE_BODY(type) */
-enumerable_implementation enumerable_code;
+/* --- Ignore --- */ typedef struct to_ignore
+/* --- Ignore --- */ {
+	/* --- macro_start --- IENUMERABLE_INTERFACE_BODY(type) */
+	enumerable_implementation enumerable_code;
+	/* --- macro_end --- */
+
+	/* --- macro_start --- ICOLLECTION_INTERFACE_BODY(type) */
+	/* --- macro_usage --- IENUMERABLE_INTERFACE_BODY(type) */
+	int64_t count;
 /* --- macro_end --- */
+/* --- Ignore --- */ };
 
-/* Generics types part */
+/* Compile-time type-safety validation macros */
 
-/* --- macro_start --- INCLUDE_GENERICS_ABSTRACTION(type) */
+#define __CGEN_IENUMERABLE_COMPILE_VAL__(obj) (obj)->enumerable_code
+#define __CGEN_ICOLLECTION_COMPILE_VAL__(obj) __CGEN_IENUMERABLE_COMPILE_VAL__(obj) && (obj)->count
+
+/* Interface descriptors and lib types descriptors macros */
+
+#define CGen_SortOptions(type) sort_##type##_options
+#define CGen_Enumerator(type) enumerator_##type
+#define CGen_IEnumerable(type) i_enumerable_##type
+#define CGen_ICollection(type) i_collection_##type
+
+/* Polymorphism verification macros */
+
+#define CGen_Is_IEnumerable(obj) (obj)->enumerable_code &ENUMERABLE_I
+#define CGen_Is_ICollection(obj) (obj)->enumerable_code &COLLECTION_I
+
+/* Enumerable interface functions macros */
+
+#define CGen_Finalize(type, enumerable)                        \
+	cgen_finalize_##type((i_enumerable_##type *)(enumerable)); \
+	__CGEN_IENUMERABLE_COMPILE_VAL__(*(enumerable))
+#define CGen_GetEnumerator(type, enumerable)                       \
+	cgen_get_enumerator_##type((i_enumerable_##type)(enumerable)); \
+	__CGEN_IENUMERABLE_COMPILE_VAL__(enumerable)
+#define CGen_Clone(type, enumerable)                      \
+	cgen_clone_##type((i_enumerable_##type)(enumerable)); \
+	__CGEN_IENUMERABLE_COMPILE_VAL__(enumerable)
+#define CGen_Sort(type, enumerable, options)                      \
+	cgen_sort_##type((i_enumerable_##type)(enumerable), options); \
+	__CGEN_IENUMERABLE_COMPILE_VAL__(enumerable)
+
+/* Collection interface functions macros */
+
+#define CGen_Clear(type, collection)                      \
+	cgen_clear_##type((i_collection_##type)(collection)); \
+	__CGEN_ICOLLECTION_COMPILE_VAL__(collection)
+
+/* Enumerables types descriptors, constructors and functions macros */
+
+#define CGen_Array(type) array_##type
+#define CGen_New_Array(type) cgen_array_##type##__create()
+
+#define CGen_LinkedList(type) linkedlist_##type
+#define CGen_New_LinkedList(type) cgen_linkedlist_##type##__create()
+#define CGen_AddFirst(type, list, content) cgen_linkedlist_##type##__add_first(list, content)
+#define CGen_AddLast(type, list, content) cgen_linkedlist_##type##__add_last(list, content)
+#define CGen_RemoveFirst(type, list) cgen_linkedlist_##type##__remove_first(list)
+#define CGen_RemoveLast(type, list) cgen_linkedlist_##type##__remove_last(list)
+
+/* --- macro_start --- CGen_Include_Generics_Abstraction(type) */
+typedef struct sort_type_options
+{
+	int32_t (*compare)(type x, type y);
+	sort_aim aim;
+	sort_location location;
+} sort_type_options;
 typedef struct indexed_type_data
 {
 	type *data;
@@ -55,25 +117,33 @@ typedef struct enumerator_type
 	type *current;
 	void (*move_next)(struct enumerator_type *enumerator);
 	void (*reset)(struct enumerator_type *enumerator);
-	union {
+	union
+	{
 		indexed_type_data indexed;
 		linked_type_data linked;
 	};
 } enumerator_type;
-typedef struct enumerable_type_struct
+typedef struct i_enumerable_type_struct
 {
 	/* --- Ignore --- */ enumerable_implementation enumerable_code;
-	/* --- macro_usage --- ENUMERABLE_INTERFACE_BODY(type) */
-} * enumerable_type;
+	/* --- macro_usage --- IENUMERABLE_INTERFACE_BODY(type) */
+} * i_enumerable_type;
+typedef struct i_collection_type_struct
+{
+	/* --- Ignore --- */ enumerable_implementation enumerable_code;
+	/* --- Ignore --- */ int64_t count;
+	/* --- macro_usage --- IENUMERABLE_INTERFACE_BODY(type) */
+} * i_collection_type;
 typedef struct array_type_struct
 {
-	/* --- macro_usage --- ENUMERABLE_INTERFACE_BODY(type) */
+	/* --- macro_usage --- IENUMERABLE_INTERFACE_BODY(type) */
+	/* --- Ignore --- */ enumerable_implementation enumerable_code;
 	type *items;
 	int64_t length;
 } * array_type;
 typedef struct list_type_struct
 {
-	/* --- macro_usage --- ENUMERABLE_INTERFACE_BODY(type) */
+	/* --- macro_usage --- IENUMERABLE_INTERFACE_BODY(type) */
 	type *items;
 	int64_t length;
 	int64_t capacity;
@@ -86,39 +156,40 @@ typedef struct linkednode_type_struct
 } * linkednode_type;
 typedef struct linkedlist_type_struct
 {
-	/* --- macro_usage --- ENUMERABLE_INTERFACE_BODY(type) */
+	/* --- macro_usage --- ICOLLECTION_INTERFACE_BODY(type) */
+	/* --- Ignore --- */ enumerable_implementation enumerable_code;
+	/* --- Ignore --- */ int64_t count;
 	linkednode_type first;
 	linkednode_type last;
-	int64_t count;
 } * linkedlist_type;
 
-/* Enumerator function */
-enumerator_type get_enumerator_type(enumerable_type enumerable);
+/* Enumerable interface functions */
+void cgen_finalize_type(CGen_IEnumerable(type) * enumerable);
+CGen_Enumerator(type) cgen_get_enumerator_type(CGen_IEnumerable(type) enumerable);
+CGen_IEnumerable(type) cgen_clone_type(CGen_IEnumerable(type) enumerable);
+CGen_IEnumerable(type) cgen_sort_type(CGen_IEnumerable(type) enumerable, CGen_SortOptions(type) options);
+
+/* Collection interface functions */
+void cgen_clear_type(CGen_ICollection(type) collection);
 
 /* Array functions */
-array_type array_type__create(int64_t length);
-void array_type__finalize(array_type *array);
-array_type array_type__clone(array_type array);
-array_type array_type__sort(array_type array, int32_t (*compare)(type x, type y), sort_aim aim, sort_location location);
+CGen_Array(type) cgen_array_type__create(int64_t length);
 
 /* Linked list functions */
-linkedlist_type linkedlist_type__create();
-void linkedlist_type__finalize(linkedlist_type *list);
-linkedlist_type linkedlist_type__clone(linkedlist_type list);
-void linkedlist_type__add_first(linkedlist_type list, type content);
-void linkedlist_type__add_last(linkedlist_type list, type content);
-void linkedlist_type__remove_first(linkedlist_type list);
-void linkedlist_type__remove_last(linkedlist_type list);
-void linkedlist_type__clear(linkedlist_type list);
-linkedlist_type linkedlist_type__sort(linkedlist_type list, int32_t (*compare)(type x, type y), sort_aim aim, sort_location location);
+CGen_LinkedList(type) cgen_linkedlist_type__create();
+void cgen_linkedlist_type__add_first(CGen_LinkedList(type) list, type content);
+void cgen_linkedlist_type__add_last(CGen_LinkedList(type) list, type content);
+void cgen_linkedlist_type__remove_first(CGen_LinkedList(type) list);
+void cgen_linkedlist_type__remove_last(CGen_LinkedList(type) list);
+
 /* --- macro_end --- */
 
-/* --- macro_start --- INCLUDE_GENERICS_IMPLEMENTATION(type) */
+/* --- macro_start --- CGen_Include_Generics_Implementation(type) */
 /* Private core sort functions */
-void __generics_type__merge_sort__(type *_array, type *_tmp, int64_t _start, int64_t _end, int32_t (*_compare)(type _x, type _y));
-int64_t __generics_type__partition__(type *_array, int64_t _low, int64_t _high, int32_t (*_compare)(type _x, type _y));
-void __generics_type__quick_sort__(type *_array, int64_t _low, int64_t _high, int32_t (*_compare)(type _x, type _y));
-void __generics_type__merge_sort__(type *_array, type *_tmp, int64_t _start, int64_t _end, int32_t (*_compare)(type _x, type _y))
+static void __cgen_type__merge_sort__(type *_array, type *_tmp, int64_t _start, int64_t _end, int32_t (*_compare)(type _x, type _y));
+static int64_t __cgen_type__partition__(type *_array, int64_t _low, int64_t _high, int32_t (*_compare)(type _x, type _y));
+static void __cgen_type__quick_sort__(type *_array, int64_t _low, int64_t _high, int32_t (*_compare)(type _x, type _y));
+static void __cgen_type__merge_sort__(type *_array, type *_tmp, int64_t _start, int64_t _end, int32_t (*_compare)(type _x, type _y))
 {
 	int64_t _middle, _i, _j, _k;
 	if (_end <= _start)
@@ -126,8 +197,8 @@ void __generics_type__merge_sort__(type *_array, type *_tmp, int64_t _start, int
 		return;
 	}
 	_middle = (_start + _end) / 2;
-	__generics_type__merge_sort__(_array, _tmp, _start, _middle, _compare);
-	__generics_type__merge_sort__(_array, _tmp, _middle + 1, _end, _compare);
+	__cgen_type__merge_sort__(_array, _tmp, _start, _middle, _compare);
+	__cgen_type__merge_sort__(_array, _tmp, _middle + 1, _end, _compare);
 	_i = _start;
 	_j = _middle + 1;
 	for (_k = _start; _k <= _end; _k++)
@@ -158,7 +229,7 @@ void __generics_type__merge_sort__(type *_array, type *_tmp, int64_t _start, int
 		_array[_k] = _tmp[_k];
 	}
 }
-int64_t __generics_type__partition__(type *_array, int64_t _low, int64_t _high, int32_t (*_compare)(type _x, type _y))
+static int64_t __cgen_type__partition__(type *_array, int64_t _low, int64_t _high, int32_t (*_compare)(type _x, type _y))
 {
 	type _pivot, _tmp;
 	int64_t _i, _j;
@@ -179,19 +250,19 @@ int64_t __generics_type__partition__(type *_array, int64_t _low, int64_t _high, 
 	_array[_high] = _tmp;
 	return _i;
 }
-void __generics_type__quick_sort__(type *_array, int64_t _low, int64_t _high, int32_t (*_compare)(type _x, type _y))
+static void __cgen_type__quick_sort__(type *_array, int64_t _low, int64_t _high, int32_t (*_compare)(type _x, type _y))
 {
 	int64_t _pivot_index;
 	if (_low < _high)
 	{
-		_pivot_index = __generics_type__partition__(_array, _low, _high, _compare);
-		__generics_type__quick_sort__(_array, _low, _pivot_index - 1, _compare);
-		__generics_type__quick_sort__(_array, _pivot_index + 1, _high, _compare);
+		_pivot_index = __cgen_type__partition__(_array, _low, _high, _compare);
+		__cgen_type__quick_sort__(_array, _low, _pivot_index - 1, _compare);
+		__cgen_type__quick_sort__(_array, _pivot_index + 1, _high, _compare);
 	}
 }
 
 /* Private enumerator utils functions */
-void __generics_type__move_next_indexed__(enumerator_type *enumerator)
+static void __cgen_type__move_next_indexed__(enumerator_type *enumerator)
 {
 	if (enumerator->indexed.index >= enumerator->indexed.count)
 	{
@@ -203,7 +274,7 @@ void __generics_type__move_next_indexed__(enumerator_type *enumerator)
 		enumerator->current = &(enumerator->indexed.data[enumerator->indexed.index]);
 	}
 }
-void __generics_type__move_next_linked__(enumerator_type *enumerator)
+static void __cgen_type__move_next_linked__(enumerator_type *enumerator)
 {
 	if (enumerator->linked.node->next)
 	{
@@ -216,72 +287,54 @@ void __generics_type__move_next_linked__(enumerator_type *enumerator)
 		enumerator->current = NULL;
 	}
 }
-void __generics_type__reset_indexed__(enumerator_type *enumerator)
+static void __cgen_type__reset_indexed__(enumerator_type *enumerator)
 {
 	enumerator->indexed.index = 0;
 	enumerator->current = enumerator->indexed.count ? &(enumerator->indexed.data[0]) : NULL;
 }
-void __generics_type__reset_linked__(enumerator_type *enumerator)
+static void __cgen_type__reset_linked__(enumerator_type *enumerator)
 {
 	enumerator->linked.node = enumerator->linked.first;
 	enumerator->current = enumerator->linked.node ? &(enumerator->linked.node->content) : NULL;
 }
 
-/* Enumerator function */
-enumerator_type get_enumerator_type(enumerable_type enumerable)
-{
-	enumerator_type result;
-	assert(enumerable);
-	switch (enumerable->enumerable_code)
-	{
-	case ARRAY:
-		result.move_next = __generics_type__move_next_indexed__;
-		result.reset = __generics_type__reset_indexed__;
-		result.indexed.data = ((array_type)enumerable)->items;
-		result.indexed.count = ((array_type)enumerable)->length;
-		result.indexed.index = 0;
-		break;
-	case LINKEDLIST:
-		result.move_next = __generics_type__move_next_linked__;
-		result.reset = __generics_type__reset_linked__;
-		result.linked.first = ((linkedlist_type)enumerable)->first;
-		result.linked.node = result.linked.first;
-		break;
-	default:
-		assert(false);
-		break;
-	}
-	result.reset(&result);
-	return result;
-}
-
 /* Array functions */
-array_type array_type__create(int64_t length)
+CGen_Array(type) cgen_array_type__create(int64_t length)
 {
 	array_type _array = (array_type)calloc(1, sizeof(struct array_type_struct));
 	assert(_array);
-	_array->enumerable_code = ARRAY;
+	_array->enumerable_code = ARRAY_T;
 	_array->length = length;
 	_array->items = (type *)calloc(length, sizeof(type));
 	assert(_array->items);
 	return _array;
 }
-void array_type__finalize(array_type *array)
+static enumerator_type __cgen_array_type__get_enumerator__(array_type array)
+{
+	enumerator_type result;
+	result.move_next = __cgen_type__move_next_indexed__;
+	result.reset = __cgen_type__reset_indexed__;
+	result.indexed.data = ((array_type)array)->items;
+	result.indexed.count = ((array_type)array)->length;
+	result.indexed.index = 0;
+	return result;
+}
+static void __cgen_array_type__finalize__(array_type *array)
 {
 	assert(array && *array && (*array)->items);
 	free((*array)->items);
 	free(*array);
 	*array = NULL;
 }
-array_type array_type__clone(array_type array)
+static array_type __cgen_array_type__clone__(array_type array)
 {
 	array_type _clone;
 	assert(array && array->items && array->length);
-	_clone = array_type__create(array->length);
+	_clone = cgen_array_type__create(array->length);
 	memcpy(_clone->items, array->items, _clone->length * sizeof(type));
 	return _clone;
 }
-array_type array_type__sort(array_type array, int32_t (*compare)(type x, type y), sort_aim aim, sort_location location)
+static array_type __cgen_array_type__sort__(array_type array, int32_t (*compare)(type x, type y), sort_aim aim, sort_location location)
 {
 	array_type _result;
 	type *_tmp = NULL;
@@ -292,7 +345,7 @@ array_type array_type__sort(array_type array, int32_t (*compare)(type x, type y)
 		_result = array;
 		break;
 	case NEW_COLLECTION:
-		_result = array_type__clone(array);
+		_result = __cgen_array_type__clone__(array);
 		break;
 	default:
 		assert(false && (location == CURRENT_COLLECTION || location == NEW_COLLECTION));
@@ -302,11 +355,11 @@ array_type array_type__sort(array_type array, int32_t (*compare)(type x, type y)
 	case DURATION_STABILITY:
 		_tmp = (type *)malloc(_result->length * sizeof(type));
 		assert(_tmp);
-		__generics_type__merge_sort__(_result->items, _tmp, 0, _result->length - 1, compare);
+		__cgen_type__merge_sort__(_result->items, _tmp, 0, _result->length - 1, compare);
 		free(_tmp);
 		break;
 	case MEMORY_USAGE:
-		__generics_type__quick_sort__(_result->items, 0, _result->length - 1, compare);
+		__cgen_type__quick_sort__(_result->items, 0, _result->length - 1, compare);
 		break;
 	default:
 		assert(false && (aim == DURATION_STABILITY || aim == MEMORY_USAGE));
@@ -315,35 +368,15 @@ array_type array_type__sort(array_type array, int32_t (*compare)(type x, type y)
 }
 
 /* Linked list functions */
-linkedlist_type linkedlist_type__create()
+static void __cgen_linkedlist_type__clear__(linkedlist_type list);
+CGen_LinkedList(type) cgen_linkedlist_type__create()
 {
 	linkedlist_type _list = (linkedlist_type)calloc(1, sizeof(struct linkedlist_type_struct));
 	assert(_list);
-	_list->enumerable_code = LINKEDLIST;
+	_list->enumerable_code = LINKEDLIST_T;
 	return _list;
 }
-void linkedlist_type__finalize(linkedlist_type *list)
-{
-	assert(list && *list);
-	linkedlist_type__clear(*list);
-	free(*list);
-	*list = NULL;
-}
-linkedlist_type linkedlist_type__clone(linkedlist_type list)
-{
-	linkedlist_type _list;
-	linkednode_type _iterator;
-	assert(list);
-	_list = linkedlist_type__create();
-	_iterator = list->first;
-	while (_iterator)
-	{
-		linkedlist_type__add_last(_list, _iterator->content);
-		_iterator = _iterator->next;
-	}
-	return _list;
-}
-void linkedlist_type__add_first(linkedlist_type list, type content)
+void cgen_linkedlist_type__add_first(CGen_LinkedList(type) list, type content)
 {
 	linkednode_type _new;
 	assert(list);
@@ -363,7 +396,7 @@ void linkedlist_type__add_first(linkedlist_type list, type content)
 	list->first = _new;
 	list->count++;
 }
-void linkedlist_type__add_last(linkedlist_type list, type content)
+void cgen_linkedlist_type__add_last(CGen_LinkedList(type) list, type content)
 {
 	linkednode_type _new;
 	assert(list);
@@ -383,7 +416,7 @@ void linkedlist_type__add_last(linkedlist_type list, type content)
 	list->last = _new;
 	list->count++;
 }
-void linkedlist_type__remove_first(linkedlist_type list)
+void cgen_linkedlist_type__remove_first(CGen_LinkedList(type) list)
 {
 	linkednode_type _tmp;
 	assert(list && list->first);
@@ -400,7 +433,7 @@ void linkedlist_type__remove_first(linkedlist_type list)
 	free(_tmp);
 	list->count--;
 }
-void linkedlist_type__remove_last(linkedlist_type list)
+void cgen_linkedlist_type__remove_last(CGen_LinkedList(type) list)
 {
 	linkednode_type _tmp;
 	assert(list && list->last);
@@ -417,7 +450,37 @@ void linkedlist_type__remove_last(linkedlist_type list)
 	free(_tmp);
 	list->count--;
 }
-void linkedlist_type__clear(linkedlist_type list)
+static enumerator_type __cgen_linkedlist_type__get_enumerator__(linkedlist_type list)
+{
+	enumerator_type result;
+	result.move_next = __cgen_type__move_next_linked__;
+	result.reset = __cgen_type__reset_linked__;
+	result.linked.first = list->first;
+	result.linked.node = result.linked.first;
+	return result;
+}
+static void __cgen_linkedlist_type__finalize__(linkedlist_type *list)
+{
+	assert(list && *list);
+	__cgen_linkedlist_type__clear__(*list);
+	free(*list);
+	*list = NULL;
+}
+static linkedlist_type __cgen_linkedlist_type__clone__(linkedlist_type list)
+{
+	linkedlist_type _list;
+	linkednode_type _iterator;
+	assert(list);
+	_list = cgen_linkedlist_type__create();
+	_iterator = list->first;
+	while (_iterator)
+	{
+		cgen_linkedlist_type__add_last(_list, _iterator->content);
+		_iterator = _iterator->next;
+	}
+	return _list;
+}
+static void __cgen_linkedlist_type__clear__(linkedlist_type list)
 {
 	linkednode_type _current, _next;
 	assert(list);
@@ -432,7 +495,7 @@ void linkedlist_type__clear(linkedlist_type list)
 	list->last = NULL;
 	list->count = 0;
 }
-linkedlist_type linkedlist_type__sort(linkedlist_type list, int32_t (*compare)(type x, type y), sort_aim aim, sort_location location)
+static linkedlist_type __cgen_linkedlist_type__sort__(linkedlist_type list, int32_t (*compare)(type x, type y), sort_aim aim, sort_location location)
 {
 	linkedlist_type _result;
 	type *_tmp, *_save;
@@ -446,7 +509,7 @@ linkedlist_type linkedlist_type__sort(linkedlist_type list, int32_t (*compare)(t
 		case CURRENT_COLLECTION:
 			return list;
 		case NEW_COLLECTION:
-			return linkedlist_type__create();
+			return cgen_linkedlist_type__create();
 		default:
 			assert(false && (location == CURRENT_COLLECTION || location == NEW_COLLECTION));
 		}
@@ -465,11 +528,11 @@ linkedlist_type linkedlist_type__sort(linkedlist_type list, int32_t (*compare)(t
 	case DURATION_STABILITY:
 		_tmp = (type *)malloc(list->count * sizeof(type));
 		assert(_tmp);
-		__generics_type__merge_sort__(_save, _tmp, 0, list->count - 1, compare);
+		__cgen_type__merge_sort__(_save, _tmp, 0, list->count - 1, compare);
 		free(_tmp);
 		break;
 	case MEMORY_USAGE:
-		__generics_type__quick_sort__(_save, 0, list->count - 1, compare);
+		__cgen_type__quick_sort__(_save, 0, list->count - 1, compare);
 		break;
 	default:
 		assert(false);
@@ -486,10 +549,10 @@ linkedlist_type linkedlist_type__sort(linkedlist_type list, int32_t (*compare)(t
 		}
 		break;
 	case NEW_COLLECTION:
-		_result = linkedlist_type__create();
+		_result = cgen_linkedlist_type__create();
 		for (_i = 0; _i < list->count; _i++)
 		{
-			linkedlist_type__add_last(_result, _save[_i]);
+			cgen_linkedlist_type__add_last(_result, _save[_i]);
 		}
 		break;
 	default:
@@ -498,22 +561,102 @@ linkedlist_type linkedlist_type__sort(linkedlist_type list, int32_t (*compare)(t
 	free(_save);
 	return _result;
 }
+
+/* Enumerable interface functions */
+void cgen_finalize_type(CGen_IEnumerable(type) * enumerable)
+{
+	assert(enumerable && *enumerable && CGen_Is_IEnumerable(*enumerable));
+	switch ((*enumerable)->enumerable_code)
+	{
+	case ARRAY_T:
+		__cgen_array_type__finalize__((array_type *)enumerable);
+		return;
+	case LINKEDLIST_T:
+		__cgen_linkedlist_type__finalize__((linkedlist_type *)enumerable);
+		return;
+	default:
+		assert(false);
+		return;
+	}
+}
+CGen_Enumerator(type) cgen_get_enumerator_type(CGen_IEnumerable(type) enumerable)
+{
+	enumerator_type result;
+	assert(enumerable && CGen_Is_IEnumerable(enumerable));
+	switch (enumerable->enumerable_code)
+	{
+	case ARRAY_T:
+		result = __cgen_array_type__get_enumerator__((array_type)enumerable);
+		break;
+	case LINKEDLIST_T:
+		result = __cgen_linkedlist_type__get_enumerator__((linkedlist_type)enumerable);
+		break;
+	default:
+		assert(false);
+		break;
+	}
+	result.reset(&result);
+	return result;
+}
+CGen_IEnumerable(type) cgen_clone_type(CGen_IEnumerable(type) enumerable)
+{
+	assert(enumerable && CGen_Is_IEnumerable(enumerable));
+	switch (enumerable->enumerable_code)
+	{
+	case ARRAY_T:
+		return (i_enumerable_type)__cgen_array_type__clone__((array_type)enumerable);
+	case LINKEDLIST_T:
+		return (i_enumerable_type)__cgen_linkedlist_type__clone__((linkedlist_type)enumerable);
+	default:
+		assert(false);
+		return NULL;
+	}
+}
+CGen_IEnumerable(type) cgen_sort_type(CGen_IEnumerable(type) enumerable, CGen_SortOptions(type) options)
+{
+	assert(enumerable && CGen_Is_IEnumerable(enumerable) && options.compare && options.aim && options.location);
+	switch (enumerable->enumerable_code)
+	{
+	case ARRAY_T:
+		return (i_enumerable_type)__cgen_array_type__sort__((array_type)enumerable, options.compare, options.aim, options.location);
+	case LINKEDLIST_T:
+		return (i_enumerable_type)__cgen_linkedlist_type__sort__((linkedlist_type)enumerable, options.compare, options.aim, options.location);
+	default:
+		assert(false);
+		return NULL;
+	}
+}
+
+/* Collection interface functions */
+void cgen_clear_type(CGen_ICollection(type) collection)
+{
+	assert(collection && CGen_Is_ICollection(collection));
+	switch (collection->enumerable_code)
+	{
+	case LINKEDLIST_T:
+		__cgen_linkedlist_type__clear__((linkedlist_type)collection);
+		break;
+	default:
+		assert(false);
+		break;
+	}
+}
 /* --- macro_end --- */
 
-/* Warning : the enumerable can't be modified during a foreach operation ! */
-/* --- macro_start --- FOREACH(type, enumerable, element_name, action) */
+/* Iterate over an enumerable (this operation is a for each loop). 
+Warning : the enumerable can't be modified during a foreach operation ! */
+/* --- macro_start --- CGen_ForEach(type, enumerable, element_name, action) */
 do
 {
 	type *element_name;
-	enumerator_type _enumerator = get_enumerator_JOINtype((enumerable_type)enumerable);
+	CGen_Enumerator(type) _enumerator = CGen_GetEnumerator(type, enumerable);
 	while (_enumerator.current)
 	{
 		element_name = _enumerator.current;
 		action;
 		_enumerator.move_next(&(_enumerator));
 	}
-}
-while (false)
+} while (false)
 /* --- macro_end --- */
 
 #endif

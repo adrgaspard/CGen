@@ -1,4 +1,4 @@
 #include "my_collections.h"
 
-INCLUDE_GENERICS_IMPLEMENTATION(int32_t);
-INCLUDE_GENERICS_IMPLEMENTATION(person);
+CGen_Include_Generics_Implementation(int32_t);
+CGen_Include_Generics_Implementation(person);

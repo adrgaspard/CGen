@@ -2,10 +2,9 @@
 #define __MY_COLLECTIONS_H__
 
 #include "lib/cgen_generated.h"
-#include "lib/cgen_alias.h"
 #include "my_structures.h"
 
-INCLUDE_GENERICS_ABSTRACTION(int32_t);
-INCLUDE_GENERICS_ABSTRACTION(person);
+CGen_Include_Generics_Abstraction(int32_t);
+CGen_Include_Generics_Abstraction(person);
 
 #endif
