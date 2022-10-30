@@ -23,7 +23,7 @@ def generate_cgen_file(input, output) -> str:
             continue
         if line.strip().startswith("/* --- macro_start --- "):
             inside_macro = True
-            macro_name = line.replace("/* --- macro_start --- ", "").replace(" */", "")
+            macro_name = line.replace("/* --- macro_start --- ", "").replace(" */", "").strip()
             result.append(generate_line_completion("#define " + macro_name, max_length))
             continue
         if line.strip().startswith("/* --- macro_usage --- "):

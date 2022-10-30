@@ -31,10 +31,10 @@ typedef enum enumerable_implementation
 
 /* Generics interfaces part */
 
-#define     IENUMERABLE_INTERFACE_BODY(type)                                                                                                                  \
+#define IENUMERABLE_INTERFACE_BODY(type)                                                                                                                      \
     enumerable_implementation enumerable_code;
 
-#define     ICOLLECTION_INTERFACE_BODY(type)                                                                                                                  \
+#define ICOLLECTION_INTERFACE_BODY(type)                                                                                                                      \
     IENUMERABLE_INTERFACE_BODY(type)                                                                                                                          \
     int64_t count;
 
@@ -52,8 +52,8 @@ typedef enum enumerable_implementation
 
 /* Polymorphism verification macros */
 
-#define CGen_Is_IEnumerable(obj) (obj)->enumerable_code &ENUMERABLE_I
-#define CGen_Is_ICollection(obj) (obj)->enumerable_code &COLLECTION_I
+#define CGen_Is_IEnumerable(obj) (obj)->enumerable_code & ENUMERABLE_I
+#define CGen_Is_ICollection(obj) (obj)->enumerable_code & COLLECTION_I
 
 /* Enumerable interface functions macros */
 
