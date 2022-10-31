@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "lib/cgen_generated.h"
 
 int32_t __cgen_raise_error__(const char *file, const int line, const char *message)
