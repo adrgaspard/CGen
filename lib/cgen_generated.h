@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdio.h>
 
-/* Custom assertions, error messages and contexts */
+/* Custom assertions and error messages */
 
 int32_t __cgen_raise_error__(const char *file, const int line, const char *message);
 
@@ -51,7 +51,9 @@ int32_t cgen_compare_str_desc(char *x1, char *x2);
 int32_t cgen_compare_str_case_insensitive_asc(char *x1, char *x2);
 int32_t cgen_compare_str_case_insensitive_desc(char *x1, char *x2);
 
-/* Global types section */
+/* ===== UTILS SECTION ===== */
+
+/* Global types */
 
 typedef enum SortAim
 {
@@ -72,8 +74,7 @@ typedef enum EnumerableTypeDescriptor
     ENUMERABLE_I = COLLECTION_I | ARRAY_T
 } EnumerableTypeDescriptor;
 
-
-/* Generics interfaces section */
+/* Interfaces bodies section */
 
 #define IENUMERABLE_INTERFACE_BODY(type)                                                                                                                                                                                                   \
     EnumerableTypeDescriptor __descriptor;
@@ -82,33 +83,35 @@ typedef enum EnumerableTypeDescriptor
     IENUMERABLE_INTERFACE_BODY(type)                                                                                                                                                                                                       \
     int64_t _count;
 
-/* Interface descriptors and lib types descriptors macros */
+/* Global types and interfaces type descriptors macros */
 
 #define CGen_SortOptions(type) SortOptions_##type
 #define CGen_Enumerator(type) Enumerator_##type
 #define CGen_IEnumerable(type) IEnumerable_##type
 #define CGen_ICollection(type) ICollection_##type
 
-/* Polymorphism verification macros */
+/* Polymorphism verification tools macros */
 
 #define CGen_Is_IEnumerable(obj) ((obj)->__descriptor & ENUMERABLE_I)
 #define CGen_Is_ICollection(obj) ((obj)->__descriptor & COLLECTION_I)
 
-/* Enumerable interface functions macros */
+/* IEnumerable interface functions macros */
 
 #define CGen_Finalize(type, enumerable) gen_finalize_##type((IEnumerable_##type *)(enumerable))
 #define CGen_GetEnumerator(type, enumerable) cgen_get_enumerator_##type((IEnumerable_##type)(enumerable))
 #define CGen_Clone(type, enumerable) cgen_clone_##type((IEnumerable_##type)(enumerable))
 #define CGen_Sort(type, enumerable, options) cgen_sort_##type((IEnumerable_##type)(enumerable), options)
 
-/* Collection interface functions macros */
+/* ICollection interface functions macros */
 
 #define CGen_Clear(type, collection) cgen_clear_##type((ICollection_##type)(collection))
 
-/* Enumerables types descriptors, constructors and functions macros */
+/* Array macros : type descriptor, constructor and any specifics functions */
 
 #define CGen_Array(type) Array_##type
 #define CGen_New_Array(type, size) cgen_array_##type##__create(size)
+
+/* Linked list macros : type descriptor, constructor and any specifics functions */
 
 #define CGen_LinkedList(type) LinkedList_##type
 #define CGen_New_LinkedList(type) cgen_linkedlist_##type##__create()
@@ -117,8 +120,11 @@ typedef enum EnumerableTypeDescriptor
 #define CGen_RemoveFirst(type, list) cgen_linkedlist_##type##__remove_first(list)
 #define CGen_RemoveLast(type, list) cgen_linkedlist_##type##__remove_last(list)
 
+/* ===== GENERICS ABSTRACTION SECTION ===== */
+
 #define CGen_Include_Generics_Abstraction(type)                                                                                                                                                                                            \
-/* Types structures */                                                                                                                                                                                                                     \
+/* Generics types declarations structures */                                                                                                                                                                                               \
+                                                                                                                                                                                                                                           \
 typedef struct SortOptions_##type                                                                                                                                                                                                          \
 {                                                                                                                                                                                                                                          \
     int32_t (*const _compare)(const type x, const type y);                                                                                                                                                                                 \
@@ -181,27 +187,34 @@ typedef struct LinkedList_##type##_Struct                                       
     LinkedNode_##type _last;                                                                                                                                                                                                               \
 } * LinkedList_##type;                                                                                                                                                                                                                     \
                                                                                                                                                                                                                                            \
-/* Enumerable interface functions */                                                                                                                                                                                                       \
+/* IEnumerable interface functions prototypes */                                                                                                                                                                                           \
+                                                                                                                                                                                                                                           \
 void cgen_finalize_##type(CGen_IEnumerable(type) * enumerable);                                                                                                                                                                            \
 CGen_Enumerator(type) cgen_get_enumerator_##type(CGen_IEnumerable(type) enumerable);                                                                                                                                                       \
 CGen_IEnumerable(type) cgen_clone_##type(CGen_IEnumerable(type) enumerable);                                                                                                                                                               \
 CGen_IEnumerable(type) cgen_sort_##type(CGen_IEnumerable(type) enumerable, CGen_SortOptions(type) options);                                                                                                                                \
                                                                                                                                                                                                                                            \
-/* Collection interface functions */                                                                                                                                                                                                       \
+/* ICollection interface functions prototypes */                                                                                                                                                                                           \
+                                                                                                                                                                                                                                           \
 void cgen_clear_##type(CGen_ICollection(type) collection);                                                                                                                                                                                 \
                                                                                                                                                                                                                                            \
-/* Array functions */                                                                                                                                                                                                                      \
+/* Array functions prototypes */                                                                                                                                                                                                           \
+                                                                                                                                                                                                                                           \
 CGen_Array(type) cgen_array_##type##__create(int64_t length);                                                                                                                                                                              \
                                                                                                                                                                                                                                            \
-/* Linked list functions */                                                                                                                                                                                                                \
+/* Linked list functions prototypes */                                                                                                                                                                                                     \
+                                                                                                                                                                                                                                           \
 CGen_LinkedList(type) cgen_linkedlist_##type##__create();                                                                                                                                                                                  \
 void cgen_linkedlist_##type##__add_first(CGen_LinkedList(type) list, type content);                                                                                                                                                        \
 void cgen_linkedlist_##type##__add_last(CGen_LinkedList(type) list, type content);                                                                                                                                                         \
 void cgen_linkedlist_##type##__remove_first(CGen_LinkedList(type) list);                                                                                                                                                                   \
 void cgen_linkedlist_##type##__remove_last(CGen_LinkedList(type) list);
 
+/* ===== GENERICS IMPLEMENTATION SECTION ===== */
+
 #define CGen_Include_Generics_Implementation(type)                                                                                                                                                                                         \
 /* Private core sort functions */                                                                                                                                                                                                          \
+                                                                                                                                                                                                                                           \
 static void __cgen_##type##__merge_sort__(type *_array, type *_tmp, int64_t _start, int64_t _end, int32_t (*_compare)(type _x, type _y));                                                                                                  \
 static int64_t __cgen_##type##__partition__(type *_array, int64_t _low, int64_t _high, int32_t (*_compare)(type _x, type _y));                                                                                                             \
 static void __cgen_##type##__quick_sort__(type *_array, int64_t _low, int64_t _high, int32_t (*_compare)(type _x, type _y));                                                                                                               \
@@ -278,6 +291,7 @@ static void __cgen_##type##__quick_sort__(type *_array, int64_t _low, int64_t _h
 }                                                                                                                                                                                                                                          \
                                                                                                                                                                                                                                            \
 /* Private enumerator utils functions */                                                                                                                                                                                                   \
+                                                                                                                                                                                                                                           \
 static void __cgen_##type##__move_next_indexed__(Enumerator_##type *enumerator)                                                                                                                                                            \
 {                                                                                                                                                                                                                                          \
     if (++enumerator->__indexed.__index >= enumerator->__indexed.__count)                                                                                                                                                                  \
@@ -314,6 +328,7 @@ static void __cgen_##type##__reset_linked__(Enumerator_##type *enumerator)      
 }                                                                                                                                                                                                                                          \
                                                                                                                                                                                                                                            \
 /* Array functions */                                                                                                                                                                                                                      \
+                                                                                                                                                                                                                                           \
 CGen_Array(type) cgen_array_##type##__create(int64_t length)                                                                                                                                                                               \
 {                                                                                                                                                                                                                                          \
     type *_tmp = (type *)calloc(length, sizeof(type));                                                                                                                                                                                     \
@@ -392,6 +407,7 @@ static Array_##type __cgen_array_##type##__sort__(Array_##type array, int32_t (*
 }                                                                                                                                                                                                                                          \
                                                                                                                                                                                                                                            \
 /* Linked list functions */                                                                                                                                                                                                                \
+                                                                                                                                                                                                                                           \
 static void __cgen_linkedlist_##type##__clear__(LinkedList_##type list);                                                                                                                                                                   \
 CGen_LinkedList(type) cgen_linkedlist_##type##__create()                                                                                                                                                                                   \
 {                                                                                                                                                                                                                                          \
@@ -594,7 +610,8 @@ static LinkedList_##type __cgen_linkedlist_##type##__sort__(LinkedList_##type li
     return _result;                                                                                                                                                                                                                        \
 }                                                                                                                                                                                                                                          \
                                                                                                                                                                                                                                            \
-/* Enumerable interface functions */                                                                                                                                                                                                       \
+/* IEnumerable interface functions */                                                                                                                                                                                                      \
+                                                                                                                                                                                                                                           \
 void cgen_finalize_##type(CGen_IEnumerable(type) * enumerable)                                                                                                                                                                             \
 {                                                                                                                                                                                                                                          \
     __CGEN_ASSERT__(enumerable, __CGEN_METHOD_STR__("IEnumerable", type, "Finalize"), __CGEN_ERR_NULLREF__("enumerable pointer"));                                                                                                         \
@@ -667,7 +684,8 @@ CGen_IEnumerable(type) cgen_sort_##type(CGen_IEnumerable(type) enumerable, CGen_
     }                                                                                                                                                                                                                                      \
 }                                                                                                                                                                                                                                          \
                                                                                                                                                                                                                                            \
-/* Collection interface functions */                                                                                                                                                                                                       \
+/* ICollection interface functions */                                                                                                                                                                                                      \
+                                                                                                                                                                                                                                           \
 void cgen_clear_##type(CGen_ICollection(type) collection)                                                                                                                                                                                  \
 {                                                                                                                                                                                                                                          \
     __CGEN_ASSERT__(collection, __CGEN_METHOD_STR__("ICollection", type, "Clear"), __CGEN_ERR_NULLREF__("collection"));                                                                                                                    \
@@ -682,6 +700,10 @@ void cgen_clear_##type(CGen_ICollection(type) collection)                       
         break;                                                                                                                                                                                                                             \
     }                                                                                                                                                                                                                                      \
 }
+
+/* ===== GENERICS MULTILINES MACROS ===== */
+
+/* Foreach operator macro */
 
 /* Iterate over an enumerable (this operation is a for each loop).
 Warning : the enumerable can't be modified during a foreach operation ! */
