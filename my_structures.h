@@ -4,6 +4,7 @@
 #include "lib/ctuple.h"
 
 typedef char *string;
+typedef int32_t myint;
 
 typedef struct person
 {
