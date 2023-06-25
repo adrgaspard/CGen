@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Custom assertions and error messages */
+#pragma region Custom assertions and error messages
 
 int32_t __cgen_raise_error__(const char *file, const int line, const char *message);
 
@@ -21,34 +21,220 @@ int32_t __cgen_raise_error__(const char *file, const int line, const char *messa
 #define __CGEN_ERR_NOT_ENUMERABLE__(type, error_source) "Invalid value. The " error_source " is not an implementation of IEnumerable(" #type ") interface."
 #define __CGEN_ERR_NOT_COLLECTION__(type, error_source) "Invalid value. The " error_source " is not an implementation of ICollection(" #type ") interface."
 
-/* Default comparators */
+#pragma endregion
 
+#pragma region Default comparators
+
+/**
+ * @brief Compares the int8 x1 to the int8 x2. 
+ * 
+ * @param x1 The first int8 to be compared.
+ * @param x2 The other int8 to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is lower than x2, 0 when x1 and x2 are equal, >0 when x1 is upper than x2.
+ */
 int32_t cgen_compare_int8_asc(const int8_t x1, const int8_t x2);
+/**
+ * @brief Compares the int8 x1 to the int8 x2. 
+ * 
+ * @param x1 The first int8 to be compared.
+ * @param x2 The other int8 to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is upper than x2, 0 when x1 and x2 are equal, >0 when x1 is lower than x2.
+ */
 int32_t cgen_compare_int8_desc(const int8_t x1, const int8_t x2);
+/**
+ * @brief Compares the int16 x1 to the int16 x2. 
+ * 
+ * @param x1 The first int16 to be compared.
+ * @param x2 The other int16 to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is lower than x2, 0 when x1 and x2 are equal, >0 when x1 is upper than x2.
+ */
 int32_t cgen_compare_int16_asc(const int16_t x1, const int16_t x2);
+/**
+ * @brief Compares the int16 x1 to the int16 x2. 
+ * 
+ * @param x1 The first int16 to be compared.
+ * @param x2 The other int16 to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is upper than x2, 0 when x1 and x2 are equal, >0 when x1 is lower than x2.
+ */
 int32_t cgen_compare_int16_desc(const int16_t x1, const int16_t x2);
+/**
+ * @brief Compares the int32 x1 to the int32 x2. 
+ * 
+ * @param x1 The first int32 to be compared.
+ * @param x2 The other int32 to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is lower than x2, 0 when x1 and x2 are equal, >0 when x1 is upper than x2.
+ */
 int32_t cgen_compare_int32_asc(const int32_t x1, const int32_t x2);
+/**
+ * @brief Compares the int32 x1 to the int32 x2. 
+ * 
+ * @param x1 The first int32 to be compared.
+ * @param x2 The other int32 to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is upper than x2, 0 when x1 and x2 are equal, >0 when x1 is lower than x2.
+ */
 int32_t cgen_compare_int32_desc(const int32_t x1, const int32_t x2);
+/**
+ * @brief Compares the int64 x1 to the int64 x2. 
+ * 
+ * @param x1 The first int64 to be compared.
+ * @param x2 The other int64 to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is lower than x2, 0 when x1 and x2 are equal, >0 when x1 is upper than x2.
+ */
 int32_t cgen_compare_int64_asc(const int64_t x1, const int64_t x2);
+/**
+ * @brief Compares the int64 x1 to the int64 x2. 
+ * 
+ * @param x1 The first int64 to be compared.
+ * @param x2 The other int64 to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is upper than x2, 0 when x1 and x2 are equal, >0 when x1 is lower than x2.
+ */
 int32_t cgen_compare_int64_desc(const int64_t x1, const int64_t x2);
+/**
+ * @brief Compares the uint8 x1 to the uint8 x2. 
+ * 
+ * @param x1 The first uint8 to be compared.
+ * @param x2 The other uint8 to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is lower than x2, 0 when x1 and x2 are equal, >0 when x1 is upper than x2.
+ */
 int32_t cgen_compare_uint8_asc(const uint8_t x1, const uint8_t x2);
+/**
+ * @brief Compares the uint8 x1 to the uint8 x2. 
+ * 
+ * @param x1 The first uint8 to be compared.
+ * @param x2 The other uint8 to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is upper than x2, 0 when x1 and x2 are equal, >0 when x1 is lower than x2.
+ */
 int32_t cgen_compare_uint8_desc(const uint8_t x1, const uint8_t x2);
+/**
+ * @brief Compares the uint16 x1 to the uint16 x2. 
+ * 
+ * @param x1 The first uint16 to be compared.
+ * @param x2 The other uint16 to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is lower than x2, 0 when x1 and x2 are equal, >0 when x1 is upper than x2.
+ */
 int32_t cgen_compare_uint16_asc(const uint16_t x1, const uint16_t x2);
+/**
+ * @brief Compares the uint16 x1 to the uint16 x2. 
+ * 
+ * @param x1 The first uint16 to be compared.
+ * @param x2 The other uint16 to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is upper than x2, 0 when x1 and x2 are equal, >0 when x1 is lower than x2.
+ */
 int32_t cgen_compare_uint16_desc(const uint16_t x1, const uint16_t x2);
+/**
+ * @brief Compares the uint32 x1 to the uint32 x2. 
+ * 
+ * @param x1 The first uint32 to be compared.
+ * @param x2 The other uint32 to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is lower than x2, 0 when x1 and x2 are equal, >0 when x1 is upper than x2.
+ */
 int32_t cgen_compare_uint32_asc(const uint32_t x1, const uint32_t x2);
+/**
+ * @brief Compares the uint32 x1 to the uint32 x2. 
+ * 
+ * @param x1 The first uint32 to be compared.
+ * @param x2 The other uint32 to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is upper than x2, 0 when x1 and x2 are equal, >0 when x1 is lower than x2.
+ */
 int32_t cgen_compare_uint32_desc(const uint32_t x1, const uint32_t x2);
+/**
+ * @brief Compares the uint64 x1 to the uint64 x2. 
+ * 
+ * @param x1 The first uint64 to be compared.
+ * @param x2 The other uint64 to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is lower than x2, 0 when x1 and x2 are equal, >0 when x1 is upper than x2.
+ */
 int32_t cgen_compare_uint64_asc(const uint64_t x1, const uint64_t x2);
+/**
+ * @brief Compares the uint64 x1 to the uint64 x2. 
+ * 
+ * @param x1 The first uint64 to be compared.
+ * @param x2 The other uint64 to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is upper than x2, 0 when x1 and x2 are equal, >0 when x1 is lower than x2.
+ */
 int32_t cgen_compare_uint64_desc(const uint64_t x1, const uint64_t x2);
+/**
+ * @brief Compares the short x1 to the short x2. 
+ * 
+ * @param x1 The first short to be compared.
+ * @param x2 The other short to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is lower than x2, 0 when x1 and x2 are equal, >0 when x1 is upper than x2.
+ */
 int32_t cgen_compare_short_asc(const short x1, const short x2);
+/**
+ * @brief Compares the short x1 to the short x2. 
+ * 
+ * @param x1 The first short to be compared.
+ * @param x2 The other short to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is upper than x2, 0 when x1 and x2 are equal, >0 when x1 is lower than x2.
+ */
 int32_t cgen_compare_short_desc(const short x1, const short x2);
+/**
+ * @brief Compares the float x1 to the float x2. 
+ * 
+ * @param x1 The first float to be compared.
+ * @param x2 The other float to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is lower than x2, 0 when x1 and x2 are equal, >0 when x1 is upper than x2.
+ */
 int32_t cgen_compare_float_asc(const float x1, const float x2);
+/**
+ * @brief Compares the float x1 to the float x2. 
+ * 
+ * @param x1 The first float to be compared.
+ * @param x2 The other float to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is upper than x2, 0 when x1 and x2 are equal, >0 when x1 is lower than x2.
+ */
 int32_t cgen_compare_float_desc(const float x1, const float x2);
+/**
+ * @brief Compares the double x1 to the double x2. 
+ * 
+ * @param x1 The first double to be compared.
+ * @param x2 The other double to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is lower than x2, 0 when x1 and x2 are equal, >0 when x1 is upper than x2.
+ */
 int32_t cgen_compare_double_asc(const double x1, const double x2);
+/**
+ * @brief Compares the double x1 to the double x2. 
+ * 
+ * @param x1 The first double to be compared.
+ * @param x2 The other double to be compared.
+ * @return An integral value indicating the relationship between the values. <0 when x1 is upper than x2, 0 when x1 and x2 are equal, >0 when x1 is lower than x2.
+ */
 int32_t cgen_compare_double_desc(const double x1, const double x2);
+/**
+ * @brief Compares (with ignoring the case) the string x1 to the string x2. 
+ * 
+ * @param x1 The first string to be compared.
+ * @param x2 The other string to be compared.
+ * @return An integral value indicating the relationship between the strings. <0 when the first character that does not match has a lower value in x1 than in x2, 0 when the contents of both strings are equal, >0 when the first character that does not match has a greater value in x1 than in x2.
+ */
 int32_t cgen_compare_str_asc(char *x1, char *x2);
+/**
+ * @brief Compares (with ignoring the case) the string x1 to the string x2. 
+ * 
+ * @param x1 The first string to be compared.
+ * @param x2 The other string to be compared.
+ * @return An integral value indicating the relationship between the strings. <0 when the first character that does not match has a greater value in x1 than in x2, 0 when the contents of both strings are equal, >0 when the first character that does not match has a lower value in x1 than in x2.
+ */
 int32_t cgen_compare_str_desc(char *x1, char *x2);
+/**
+ * @brief Compares (with case sensitive) the string x1 to the string x2. 
+ * 
+ * @param x1 The first string to be compared.
+ * @param x2 The other string to be compared.
+ * @return An integral value indicating the relationship between the strings. <0 when the first character that does not match has a lower value in x1 than in x2, 0 when the contents of both strings are equal, >0 when the first character that does not match has a greater value in x1 than in x2.
+ */
 int32_t cgen_compare_str_case_insensitive_asc(char *x1, char *x2);
+/**
+ * @brief Compares (with case sensitive) the string x1 to the string x2. 
+ * 
+ * @param x1 The first string to be compared.
+ * @param x2 The other string to be compared.
+ * @return An integral value indicating the relationship between the strings. <0 when the first character that does not match has a greater value in x1 than in x2, 0 when the contents of both strings are equal, >0 when the first character that does not match has a lower value in x1 than in x2.
+ */
 int32_t cgen_compare_str_case_insensitive_desc(char *x1, char *x2);
+
+#pragma endregion
 
 /* ===== UTILS SECTION ===== */
 
